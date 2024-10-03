@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sản Phẩm</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Quản Lý Sản Phẩm</h1>
+
+        <!-- Form thêm sản phẩm -->
+        <h2>Thêm Sản Phẩm</h2>
+        <form id="addProductForm">
+            <div class="form-group">
+                <label for="ProductCode">Mã Sản Phẩm</label>
+                <input type="text" class="form-control" id="ProductCode" name="ProductCode" required>
+            </div>
+            <div class="form-group">
+                <label for="ProductName">Tên Sản Phẩm</label>
+                <input type="text" class="form-control" id="ProductName" name="ProductName" required>
+            </div>
+            <div class="form-group">
+                <label for="ProductDate">Ngày Sản Xuất</label>
+                <input type="date" class="form-control" id="ProductDate" name="ProductDate" required>
+            </div>
+            <div class="form-group">
+                <label for="ProductOriginPrice">Giá Gốc</label>
+                <input type="number" class="form-control" id="ProductOriginPrice" name="ProductOriginPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="Quantity">Số Lượng</label>
+                <input type="number" class="form-control" id="Quantity" name="Quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="ProductStoreCode">Mã Cửa Hàng</label>
+                <input type="text" class="form-control" id="ProductStoreCode" name="ProductStoreCode" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Thêm Sản Phẩm</button>
+        </form>
+
+        <hr>
+
+        <!-- Danh sách sản phẩm -->
+        <h2>Danh Sách Sản Phẩm</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Mã Sản Phẩm</th>
+                    <th>Tên Sản Phẩm</th>
+                    <th>Ngày Sản Xuất</th>
+                    <th>Giá Gốc</th>
+                    <th>Số Lượng</th>
+                    <th>Mã Cửa Hàng</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <!-- Dữ liệu sản phẩm sẽ được thêm vào đây bằng JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Hàm thêm sản phẩm vào danh sách
+        document.getElementById('addProductForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const productCode = document.getElementById('ProductCode').value;
+            const productName = document.getElementById('ProductName').value;
+            const productDate = document.getElementById('ProductDate').value;
+            const productOriginPrice = document.getElementById('ProductOriginPrice').value;
+            const quantity = document.getElementById('Quantity').value;
+            const productStoreCode = document.getElementById('ProductStoreCode').value;
+
+            // Thêm sản phẩm vào bảng
+            const tableBody = document.getElementById('productTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${productCode}</td>
+                <td>${productName}</td>
+                <td>${productDate}</td>
+                <td>${productOriginPrice}</td>
+                <td>${quantity}</td>
+                <td>${productStoreCode}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editProduct(this)">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(this)">Xóa</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+
+            // Reset form
+            this.reset();
+        });
+
+        // Hàm xóa sản phẩm
+        function deleteProduct(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+        }
+
+        // Hàm sửa sản phẩm
+        function editProduct(button) {
+            const row = button.parentElement.parentElement;
+            const cells = row.getElementsByTagName('td');
+
+            document.getElementById('ProductCode').value = cells[0].innerText;
+            document.getElementById('ProductName').value = cells[1].innerText;
+            document.getElementById('ProductDate').value = cells[2].innerText;
+            document.getElementById('ProductOriginPrice').value = cells[3].innerText;
+            document.getElementById('Quantity').value = cells[4].innerText;
+            document.getElementById('ProductStoreCode').value = cells[5].innerText;
+
+            // Xóa hàng hiện tại để dễ dàng thêm lại
+            row.remove();
+        }
+    </script>
+</body>
+</html>

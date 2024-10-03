@@ -1,0 +1,27 @@
+/* styles.css */
+body {
+    background-color: #f8f9fa; /* Màu nền nhẹ */
+}
+
+h1 {
+    margin-bottom: 30px; /* Khoảng cách dưới tiêu đề */
+}
+
+.table {
+    background-color: #fff; /* Nền trắng cho bảng */
+}
+
+.table th {
+    background-color: #007bff; /* Màu nền cho tiêu đề bảng */
+    color: #fff; /* Màu chữ trắng */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Màu nền cho nút thêm sản phẩm */
+    border: none; /* Xóa viền */
+}
+
+.btn-danger {
+    background-color: #dc3545; /* Màu nền cho nút xóa */
+    border: none; /* Xóa viền */
+}
