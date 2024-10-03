@@ -64,57 +64,97 @@
 
     <script>
         // Hàm thêm sản phẩm vào danh sách
-        document.getElementById('addProductForm').addEventListener('submit', function(event) {
+        document.getElementById('addProductForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            const productCode = document.getElementById('ProductCode').value;
-            const productName = document.getElementById('ProductName').value;
-            const productDate = document.getElementById('ProductDate').value;
-            const productOriginPrice = document.getElementById('ProductOriginPrice').value;
-            const quantity = document.getElementById('Quantity').value;
-            const productStoreCode = document.getElementById('ProductStoreCode').value;
+            const productData = {
+                ProductCode: document.getElementById('ProductCode').value,
+                ProductName: document.getElementById('ProductName').value,
+                ProductDate: document.getElementById('ProductDate').value,
+                ProductOriginPrice: document.getElementById('ProductOriginPrice').value,
+                Quantity: document.getElementById('Quantity').value,
+                ProductStoreCode: document.getElementById('ProductStoreCode').value,
+            };
 
-            // Thêm sản phẩm vào bảng
+            // Gửi yêu cầu POST đến API để thêm sản phẩm
+            try {
+            const response = await fetch('/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData),
+            });
+
+            const result = await response.json();
+            console.log(result);
+            if (result.success) {
+                alert('Sản phẩm đã được thêm thành công!');
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Có lỗi xảy ra:', error);
+        }
+    });
+
+        // Thêm sản phẩm vào bảng
+        function addProductToTable(product) {
             const tableBody = document.getElementById('productTableBody');
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${productCode}</td>
-                <td>${productName}</td>
-                <td>${productDate}</td>
-                <td>${productOriginPrice}</td>
-                <td>${quantity}</td>
-                <td>${productStoreCode}</td>
+                <td>${product.ProductCode}</td>
+                <td>${product.ProductName}</td>
+                <td>${product.ProductDate}</td>
+                <td>${product.ProductOriginPrice}</td>
+                <td>${product.Quantity}</td>
+                <td>${product.ProductStoreCode}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="editProduct(this)">Sửa</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(this)">Xóa</button>
+                    <button class="btn btn-warning btn-sm" onclick="editProduct('${product.ProductCode}')">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.ProductCode}')">Xóa</button>
                 </td>
             `;
             tableBody.appendChild(row);
-
-            // Reset form
-            this.reset();
-        });
+        }
 
         // Hàm xóa sản phẩm
-        function deleteProduct(button) {
-            const row = button.parentElement.parentElement;
-            row.remove();
+        function deleteProduct(productCode) {
+            fetch(`/products/${productCode}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Xóa sản phẩm khỏi bảng
+                    const rows = document.querySelectorAll('#productTableBody tr');
+                    rows.forEach(row => {
+                        if (row.cells[0].innerText === productCode) {
+                            row.remove();
+                        }
+                    });
+                } else {
+                    alert('Có lỗi xảy ra khi xóa sản phẩm');
+                }
+            })
+            .catch(error => console.error('Lỗi:', error));
         }
 
         // Hàm sửa sản phẩm
-        function editProduct(button) {
-            const row = button.parentElement.parentElement;
-            const cells = row.getElementsByTagName('td');
+        function editProduct(productCode) {
+            const rows = document.querySelectorAll('#productTableBody tr');
+            rows.forEach(row => {
+                if (row.cells[0].innerText === productCode) {
+                    document.getElementById('ProductCode').value = row.cells[0].innerText;
+                    document.getElementById('ProductName').value = row.cells[1].innerText;
+                    document.getElementById('ProductDate').value = row.cells[2].innerText;
+                    document.getElementById('ProductOriginPrice').value = row.cells[3].innerText;
+                    document.getElementById('Quantity').value = row.cells[4].innerText;
+                    document.getElementById('ProductStoreCode').value = row.cells[5].innerText;
 
-            document.getElementById('ProductCode').value = cells[0].innerText;
-            document.getElementById('ProductName').value = cells[1].innerText;
-            document.getElementById('ProductDate').value = cells[2].innerText;
-            document.getElementById('ProductOriginPrice').value = cells[3].innerText;
-            document.getElementById('Quantity').value = cells[4].innerText;
-            document.getElementById('ProductStoreCode').value = cells[5].innerText;
-
-            // Xóa hàng hiện tại để dễ dàng thêm lại
-            row.remove();
+                    // Xóa hàng hiện tại để dễ dàng thêm lại
+                    row.remove();
+                }
+            });
         }
     </script>
 </body>

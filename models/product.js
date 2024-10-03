@@ -9,5 +9,7 @@ const productSchema = new mongoose.Schema({
     ProductStoreCode: { type: String, required: true },
 });
 
+// Xuất mô hình Product
 const Product = mongoose.model('Product', productSchema);
+// module.exports = mongoose.model('Product', productSchema);
 module.exports = Product;

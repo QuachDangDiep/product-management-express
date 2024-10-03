@@ -2,80 +2,97 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/product');
+const { addProduct } = require('../productData');
 
 // Lấy danh sách sản phẩm
-router.get('/get', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const products = await Product.find();
-        res.render('products', { products });
+        res.json(products); // Trả về danh sách sản phẩm dưới dạng JSON
     } catch (error) {
         console.error('Lỗi khi lấy danh sách sản phẩm:', error);
-        res.status(500).send('Có lỗi xảy ra khi lấy danh sách sản phẩm');
+        res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi lấy danh sách sản phẩm' });
     }
-});
-
-// Hiển thị form thêm sản phẩm
-router.get('/new', (req, res) => {
-    res.render('newProduct');
 });
 
 // Thêm sản phẩm mới
 router.post('/', async (req, res) => {
+    const { ProductCode, ProductName, ProductDate, ProductOriginPrice, Quantity, ProductStoreCode } = req.body;
+    // console.log('Received data:' .req.body);
+
+    // Kiểm tra dữ liệu đầu vào
+    if (!ProductCode || !ProductName || !ProductDate || !ProductOriginPrice || !Quantity || !ProductStoreCode) {
+        return res.status(400).json({ success: false, message: 'Thiếu thông tin sản phẩm' });
+    }
+
     const newProduct = new Product({
-        ProductCode: req.body.ProductCode,
-        ProductName: req.body.ProductName,
-        ProductDate: req.body.ProductDate,
-        ProductOriginPrice: req.body.ProductOriginPrice,
-        Quantity: req.body.Quantity,
-        ProductStoreCode: req.body.ProductStoreCode,
+        ProductCode,
+        ProductName,
+        ProductDate,
+        ProductOriginPrice,
+        Quantity,
+        ProductStoreCode,
     });
 
     try {
         await newProduct.save();
-        res.redirect('/products');
+        addProduct(newProduct);
+        res.status(201).json({ success: true, message: 'Sản phẩm đã được thêm thành công', product: newProduct });
     } catch (error) {
         console.error('Lỗi khi thêm sản phẩm:', error);
-        res.status(500).send('Có lỗi xảy ra khi thêm sản phẩm');
+        res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi thêm sản phẩm', error: error.message });
     }
 });
 
-// Hiển thị form sửa sản phẩm
-router.get('/:id/edit', async (req, res) => {
+// Lấy thông tin sản phẩm
+router.get('/:id', async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        res.render('editProduct', { product });
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
+        }
+        res.json(product); // Trả về sản phẩm dưới dạng JSON
     } catch (error) {
         console.error('Lỗi khi lấy sản phẩm:', error);
-        res.status(500).send('Có lỗi xảy ra khi lấy sản phẩm');
+        res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi lấy sản phẩm' });
     }
 });
 
 // Cập nhật sản phẩm
-router.post('/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
+    const { ProductCode, ProductName, ProductDate, ProductOriginPrice, Quantity, ProductStoreCode } = req.body;
+
     try {
-        await Product.findByIdAndUpdate(req.params.id, {
-            ProductCode: req.body.ProductCode,
-            ProductName: req.body.ProductName,
-            ProductDate: req.body.ProductDate,
-            ProductOriginPrice: req.body.ProductOriginPrice,
-            Quantity: req.body.Quantity,
-            ProductStoreCode: req.body.ProductStoreCode,
-        });
-        res.redirect('/products');
+        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, {
+            ProductCode,
+            ProductName,
+            ProductDate,
+            ProductOriginPrice,
+            Quantity,
+            ProductStoreCode,
+        }, { new: true });
+
+        if (!updatedProduct) {
+            return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
+        }
+        res.json({ success: true, message: 'Sản phẩm đã được cập nhật thành công', product: updatedProduct });
     } catch (error) {
         console.error('Lỗi khi cập nhật sản phẩm:', error);
-        res.status(500).send('Có lỗi xảy ra khi cập nhật sản phẩm');
+        res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi cập nhật sản phẩm' });
     }
 });
 
 // Xóa sản phẩm
-router.post('/:id/delete', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        await Product.findByIdAndDelete(req.params.id);
-        res.redirect('/products');
+        const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+        if (!deletedProduct) {
+            return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
+        }
+        res.json({ success: true, message: 'Sản phẩm đã được xóa thành công' });
     } catch (error) {
         console.error('Lỗi khi xóa sản phẩm:', error);
-        res.status(500).send('Có lỗi xảy ra khi xóa sản phẩm');
+        res.status(500).json({ success: false, message: 'Có lỗi xảy ra khi xóa sản phẩm' });
     }
 });
 
