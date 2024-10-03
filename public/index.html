@@ -78,29 +78,32 @@
 
             // Gửi yêu cầu POST đến API để thêm sản phẩm
             try {
-            const response = await fetch('/products', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(productData),
-            });
+                const response = await fetch('/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData),
+                });
 
-            const result = await response.json();
-            console.log(result);
-            if (result.success) {
-                alert('Sản phẩm đã được thêm thành công!');
-            } else {
-                alert(result.message);
+                const result = await response.json();
+                console.log(result);
+                if (result.success) {
+                    alert('Sản phẩm đã được thêm thành công!');
+                    addProductToTable(productData); // Thêm sản phẩm vào bảng
+                    document.getElementById('addProductForm').reset(); // Reset form sau khi thêm
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Có lỗi xảy ra:', error);
             }
-        } catch (error) {
-            console.error('Có lỗi xảy ra:', error);
-        }
-    });
+        });
 
         // Thêm sản phẩm vào bảng
         function addProductToTable(product) {
             const tableBody = document.getElementById('productTableBody');
+            
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${product.ProductCode}</td>
@@ -114,7 +117,7 @@
                     <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.ProductCode}')">Xóa</button>
                 </td>
             `;
-            tableBody.appendChild(row);
+            tableBody.appendChild(row); // Thêm hàng vào bảng
         }
 
         // Hàm xóa sản phẩm
