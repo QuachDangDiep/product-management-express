@@ -3,13 +3,15 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const productRoutes = require('./routes/product');
+const cors = require('cors');
+
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/product', {
+mongoose.connect('mongodb://localhost:27017/products', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -24,6 +26,7 @@ mongoose.connect('mongodb://localhost:27017/product', {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); // Thêm middleware để xử lý JSON
 app.use(express.static('public')); // Nếu bạn có các file tĩnh như CSS, JS
+app.use(cors());
 
 // Sử dụng router cho sản phẩm
 app.use('/products', productRoutes);
